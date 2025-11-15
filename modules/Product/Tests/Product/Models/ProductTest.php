@@ -1,9 +1,12 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Product\Models\Product;
 
+uses(RefreshDatabase::class);
+
 it('creates a product', function () {
-    $product = new Product;
+    $product = Product::factory()->create();
 
     $this->assertTrue(true);
 });
