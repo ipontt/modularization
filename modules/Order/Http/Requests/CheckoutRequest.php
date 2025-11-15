@@ -10,7 +10,7 @@ class CheckoutRequest extends FormRequest
 {
     public function authorize(): Response
     {
-        return Response::deny();
+        return Response::allow();
     }
 
     /** @return array<string, ValidationRule|array<mixed>|string> */
