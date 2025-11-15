@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('price')->comment('price in cents (or smallest unit)');
+            $table->unsignedBigInteger('price')->comment('price in cents (or smallest unit)');
             $table->integer('stock');
             $table->timestamps();
         });
