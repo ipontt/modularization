@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Product\Database\Factories\ProductFactory;
 
+/**
+ * @property string $name
+ * @property int $price
+ * @property int $stock
+ */
 #[UseFactory(ProductFactory::class)]
 class Product extends Model
 {

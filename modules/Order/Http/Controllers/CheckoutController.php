@@ -3,27 +3,31 @@
 namespace Modules\Order\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Modules\Order\Http\Requests\CheckoutRequest;
 use Modules\Order\Models\Order;
 use Modules\Payment\PayBuddy;
+use Modules\Product\DTOs\CartItemDTO;
 use Modules\Product\Models\Product;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController
 {
-    public function __invoke(CheckoutRequest $request)
+    public function __invoke(CheckoutRequest $request): JsonResponse
     {
-        $products = $request->safe()
-            ->collect('products')
-            ->map(fn ($productDetail) => [
-                'product' => Product::query()->find($productDetail['id']),
-                'quantity' => $productDetail['quantity'],
-            ]);
+        /** @var Collection<int, array{id: int, quantity: int}> $products */
+        $products = $request->safe()->collect('products');
+        /** @var Collection<int, CartItemDTO> $cartItems */
+        $cartItems = $products
+            ->map(fn (array $productDetail) => new CartItemDTO(
+                product: Product::query()->findOrFail($productDetail['id']),
+                quantity: $productDetail['quantity'],
+            ));
 
-        $total = $products->sum(fn ($productDetail) => $productDetail['quantity'] * $productDetail['product']->price);
+        $total = $cartItems->sum(fn (CartItemDTO $cartItem) => $cartItem->quantity * $cartItem->product->price);
 
         $paymentGateway = PayBuddy::make();
 
@@ -47,12 +51,12 @@ class CheckoutController
             'user_id' => Auth::id(),
         ]);
 
-        foreach ($products as $product) {
-            $product['product']->decrement('stock', $product['quantity']);
+        foreach ($cartItems as $cartItem) {
+            $cartItem->product->decrement('stock', $cartItem->quantity);
             $order->lines()->create([
-                'product_id' => $product['product']->id,
-                'product_price' => $product['product']->price,
-                'quantity' => $product['quantity'],
+                'product_id' => $cartItem->product->id,
+                'product_price' => $cartItem->product->price,
+                'quantity' => $cartItem->quantity,
             ]);
         }
 

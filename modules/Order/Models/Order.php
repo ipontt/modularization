@@ -31,12 +31,4 @@ class Order extends Model
     {
         return $this->hasMany(OrderLine::class);
     }
-
-    /** @return BelongsToMany<Product, $this, OrderLine> */
-    public function products(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'order_lines')
-            ->using(OrderLine::class)
-            ->as('order_line');
-    }
 }

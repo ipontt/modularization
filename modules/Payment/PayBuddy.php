@@ -29,7 +29,7 @@ final class PayBuddy
         return [
             'id' => Str::uuid7()->toString(),
             'amount' => $amount,
-            'localized_amount' => $formatter->format($amount / 100),
+            'localized_amount' => $formatter->format($amount / 100) ?: '',
             'description' => $description,
             'created_at' => Date::now()->toDateTimeString(),
         ];
