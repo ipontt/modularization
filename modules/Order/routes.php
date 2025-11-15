@@ -2,4 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('order-test', fn () => 'Hello World');
+Route::name('order::')->group(function () {
+    Route::get('order-test', fn () => 'Hello World')->name('test');
+});
