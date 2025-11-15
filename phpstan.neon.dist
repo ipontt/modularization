@@ -4,6 +4,9 @@ includes:
 
 parameters:
 
+    excludePaths:
+        - modules/*/Tests/*
+
     ignoreErrors:
         -
             identifier: larastan.noEnvCallsOutsideOfConfig
