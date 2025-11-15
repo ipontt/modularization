@@ -49,4 +49,25 @@ it('successfuly creates an order', function () {
         $this->assertEquals($product->price, $order_line->product_price);
         $this->assertEquals(1, $order_line->quantity);
     }
+
+    $products = $products->fresh();
+    $this->assertEquals(9, $products->first()->stock);
+    $this->assertEquals(9, $products->last()->stock);
+});
+
+it('fails with an invalid token', function () {
+    $user = User::factory()->create();
+    $product = Product::factory()->create();
+    $paymentToken = PayBuddy::invalidToken();
+
+    $response = $this->actingAs($user)
+        ->postJson(route('order::checkout', [
+            'payment_token' => $paymentToken,
+            'products' => [
+                ['id' => $product->id, 'quantity' => 1]
+            ]
+        ]));
+
+    $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrors(['payment_token']);
 });
