@@ -4,7 +4,13 @@ includes:
 
 parameters:
 
+    ignoreErrors:
+        -
+            identifier: larastan.noEnvCallsOutsideOfConfig
+            path: modules/*/Config/*
+
     paths:
         - app/
+        - modules/
 
     level: 10
