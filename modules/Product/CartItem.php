@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Product\DTOs;
+namespace Modules\Product;
 
 use Modules\Product\Models\Product;
 
-readonly class CartItemDTO
+readonly class CartItem
 {
     public function __construct(
         public Product $product,

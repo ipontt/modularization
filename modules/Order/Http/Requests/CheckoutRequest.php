@@ -5,6 +5,7 @@ namespace Modules\Order\Http\Requests;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Collection;
 
 class CheckoutRequest extends FormRequest
 {
@@ -22,5 +23,11 @@ class CheckoutRequest extends FormRequest
             'products.*.id' => ['required', 'numeric'],
             'products.*.quantity' => ['required', 'numeric'],
         ];
+    }
+
+    /** @return Collection<int, array{id: int, quantity: int}> */
+    public function products(): Collection
+    {
+        return $this->safe()->collect('products');
     }
 }

@@ -9,7 +9,8 @@ use Illuminate\Validation\ValidationException;
 use Modules\Order\Http\Requests\CheckoutRequest;
 use Modules\Order\Models\Order;
 use Modules\Payment\PayBuddy;
-use Modules\Product\DTOs\CartItemDTO;
+use Modules\Product\CartItem;
+use Modules\Product\CartItemCollection;
 use Modules\Product\Models\Product;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,16 +19,9 @@ class CheckoutController
 {
     public function __invoke(CheckoutRequest $request): JsonResponse
     {
-        /** @var Collection<int, array{id: int, quantity: int}> $products */
-        $products = $request->safe()->collect('products');
-        /** @var Collection<int, CartItemDTO> $cartItems */
-        $cartItems = $products
-            ->map(fn (array $productDetail) => new CartItemDTO(
-                product: Product::query()->findOrFail($productDetail['id']),
-                quantity: $productDetail['quantity'],
-            ));
+        $cartItems = CartItemCollection::fromCheckoutData($request->products());
 
-        $total = $cartItems->sum(fn (CartItemDTO $cartItem) => $cartItem->quantity * $cartItem->product->price);
+        $total = $cartItems->total();
 
         $paymentGateway = PayBuddy::make();
 
@@ -51,7 +45,7 @@ class CheckoutController
             'user_id' => Auth::id(),
         ]);
 
-        foreach ($cartItems as $cartItem) {
+        foreach ($cartItems->items as $cartItem) {
             $cartItem->product->decrement('stock', $cartItem->quantity);
             $order->lines()->create([
                 'product_id' => $cartItem->product->id,
