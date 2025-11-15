@@ -7,7 +7,7 @@ use Modules\Product\Models\Product;
 readonly class CartItem
 {
     public function __construct(
-        public Product $product,
+        public ProductDTO $product,
         public int $quantity,
     ) {}
 }

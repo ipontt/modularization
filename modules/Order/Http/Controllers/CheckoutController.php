@@ -12,12 +12,13 @@ use Modules\Payment\PayBuddy;
 use Modules\Product\CartItem;
 use Modules\Product\CartItemCollection;
 use Modules\Product\Models\Product;
+use Modules\Product\Warehouse\ProductStockManager;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController
 {
-    public function __invoke(CheckoutRequest $request): JsonResponse
+    public function __invoke(CheckoutRequest $request, ProductStockManager $productStockManager): JsonResponse
     {
         $cartItems = CartItemCollection::fromCheckoutData($request->products());
 
@@ -46,7 +47,7 @@ class CheckoutController
         ]);
 
         foreach ($cartItems->items as $cartItem) {
-            $cartItem->product->decrement('stock', $cartItem->quantity);
+            $productStockManager->decrement($cartItem->product->id, $cartItem->quantity);
             $order->lines()->create([
                 'product_id' => $cartItem->product->id,
                 'product_price' => $cartItem->product->price,

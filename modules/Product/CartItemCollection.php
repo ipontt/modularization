@@ -7,16 +7,20 @@ use Modules\Product\Models\Product;
 
 class CartItemCollection
 {
+    /** @param Collection<int, CartItem> $items */
     public function __construct(
-        /** @param Collection<int, CartItem> $items */
         public protected(set) Collection $items,
     ) {}
 
+    /** @param Collection<int, array{id: int, quantity: int}> $data */
     public static function fromCheckoutData(Collection $data): CartItemCollection
     {
-        $cartItems = $data->map(fn ($productDetail) => new CartItem(Product::query()->findOrFail($productDetail['id']), $productDetail['quantity']));
+        $cartItems = $data->map(fn ($productDetail) => new CartItem(
+            product: ProductDTO::fromEloquentModel(Product::query()->findOrFail($productDetail['id'])),
+            quantity: $productDetail['quantity'],
+        ));
 
-        return new static($cartItems);
+        return new self($cartItems);
     }
 
     public function total(): int
