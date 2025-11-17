@@ -2,7 +2,8 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Testing\Fluent\AssertableJson;
+use Illuminate\Support\Facades\Mail;
+use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Payment\PayBuddy;
 use Modules\Product\Models\Product;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 uses(RefreshDatabase::class);
 
 it('successfuly creates an order', function () {
+    Mail::fake();
     $user = User::factory()->create();
     $products = Product::factory()
         ->count(2)
@@ -35,9 +37,9 @@ it('successfuly creates an order', function () {
 
     $response
         ->assertStatus(Response::HTTP_CREATED)
-        ->assertJson(fn (AssertableJson $json) => $json->has('data', fn (AssertableJson $json) => $json->where('order_url', $order->url())
-        )
-        );
+        ->assertJsonPath('data.order_url', $order->url());
+
+    Mail::assertQueued(OrderReceived::class, $user->email);
 
     // Order
     $this->assertNotNull($order);

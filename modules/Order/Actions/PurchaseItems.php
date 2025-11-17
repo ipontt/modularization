@@ -3,6 +3,8 @@
 namespace Modules\Order\Actions;
 
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Support\Facades\Mail;
+use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Payment\Actions\CreatePaymentForOrder;
 use Modules\Payment\PayBuddy;
@@ -17,9 +19,9 @@ class PurchaseItems
         protected DatabaseManager $databaseManager,
     ) {}
 
-    public function handle(CartItemCollection $items, PayBuddy $paymentGateway, string $paymentToken, int $userId): Order
+    public function handle(CartItemCollection $items, PayBuddy $paymentGateway, string $paymentToken, int $userId, string $userEmail): Order
     {
-        return $this->databaseManager->transaction(function () use ($items, $paymentGateway, $paymentToken, $userId) {
+        $order = $this->databaseManager->transaction(function () use ($items, $paymentGateway, $paymentToken, $userId): Order {
             $order = Order::startForUser($userId);
             $order->addLinesFromCartItems($items);
             $order->fulfill();
@@ -38,5 +40,9 @@ class PurchaseItems
 
             return $order;
         });
+
+        Mail::to($userEmail)->queue(new OrderReceived($order->localizedTotal()));
+
+        return $order;
     }
 }

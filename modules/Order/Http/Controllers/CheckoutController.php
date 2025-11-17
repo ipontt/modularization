@@ -2,8 +2,9 @@
 
 namespace Modules\Order\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Container\Attributes\Authenticated;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Modules\Order\Actions\PurchaseItems;
 use Modules\Order\Exceptions\PaymentFailedException;
@@ -14,18 +15,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController
 {
-    public function __invoke(CheckoutRequest $request, PurchaseItems $purchaseItems): JsonResponse
+    public function __invoke(CheckoutRequest $request, PurchaseItems $purchaseItems, #[Authenticated] User $user): JsonResponse
     {
         $cartItems = CartItemCollection::fromCheckoutData($request->products());
-        /** @var int $userId */
-        $userId = Auth::id();
 
         try {
             $order = $purchaseItems->handle(
                 $cartItems,
                 PayBuddy::make(),
                 (string) $request->safe()->string('payment_token'),
-                $userId,
+                $user->id,
+                $user->email,
             );
         } catch (PaymentFailedException) {
             throw ValidationException::withMessages([

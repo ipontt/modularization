@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Number;
 use Modules\Order\Exceptions\OrderMissingOrderLinesException;
 use Modules\Payment\Payment;
 use Modules\Product\CartItemCollection;
@@ -56,6 +57,11 @@ class Order extends Model
     public function url(): string
     {
         return route('order::orders.show', ['order' => $this]);
+    }
+
+    public function localizedTotal(): string
+    {
+        return Number::currency(number: $this->total / 100, in: 'USD', locale: 'en-US') ?: (string) $this->total;
     }
 
     public static function startForUser(int $userId): self
