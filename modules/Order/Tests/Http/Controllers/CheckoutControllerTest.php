@@ -81,4 +81,6 @@ it('fails with an invalid token', function () {
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonValidationErrors(['payment_token']);
+
+    $this->assertEquals(0, Order::query()->count());
 });
