@@ -3,64 +3,40 @@
 namespace Modules\Order\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Modules\Order\Actions\PurchaseItems;
+use Modules\Order\Exceptions\PaymentFailedException;
 use Modules\Order\Http\Requests\CheckoutRequest;
-use Modules\Order\Models\Order;
 use Modules\Payment\PayBuddy;
-use Modules\Product\CartItem;
 use Modules\Product\CartItemCollection;
-use Modules\Product\Models\Product;
-use Modules\Product\Warehouse\ProductStockManager;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController
 {
-    public function __invoke(CheckoutRequest $request, ProductStockManager $productStockManager): JsonResponse
+    public function __invoke(CheckoutRequest $request, PurchaseItems $purchaseItems): JsonResponse
     {
         $cartItems = CartItemCollection::fromCheckoutData($request->products());
-
-        $total = $cartItems->total();
-
-        $paymentGateway = PayBuddy::make();
+        /** @var int $userId */
+        $userId = Auth::id();
 
         try {
-            $charge = $paymentGateway->charge(
-                token: $request->safe()->string('payment_token'),
-                amount: $total,
-                description: 'Test payment',
+            $order = $purchaseItems->handle(
+                $cartItems,
+                PayBuddy::make(),
+                (string) $request->safe()->string('payment_token'),
+                $userId,
             );
-        } catch (RuntimeException $e) {
+        } catch (PaymentFailedException $e) {
             throw ValidationException::withMessages([
                 'payment_token' => 'We could not complete your payment.',
             ]);
         }
 
-        $order = Order::query()->create([
-            'status' => 'completed',
-            'total' => $total,
-            'user_id' => Auth::id(),
-        ]);
-
-        foreach ($cartItems->items as $cartItem) {
-            $productStockManager->decrement($cartItem->product->id, $cartItem->quantity);
-            $order->lines()->create([
-                'product_id' => $cartItem->product->id,
-                'product_price' => $cartItem->product->price,
-                'quantity' => $cartItem->quantity,
-            ]);
-        }
-
-        $payment = $order->payments()->create([
-            'total' => $total,
-            'status' => 'paid',
-            'payment_gateway' => 'PayBuddy',
-            'payment_id' => $charge['id'],
-            'user_id' => Auth::id(),
-        ]);
-
-        return new JsonResponse(data: [], status: Response::HTTP_CREATED);
+        return new JsonResponse(data: [
+            'data' => [
+                'order_url' => $order->url(),
+            ],
+        ], status: Response::HTTP_CREATED);
     }
 }

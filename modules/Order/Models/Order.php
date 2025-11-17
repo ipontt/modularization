@@ -5,11 +5,9 @@ namespace Modules\Order\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\Payment\Payment;
-use Modules\Product\Models\Product;
 
 class Order extends Model
 {
@@ -42,5 +40,10 @@ class Order extends Model
     public function lastPayment(): HasOne
     {
         return $this->hasOne(Payment::class)->latestOfMany();
+    }
+
+    public function url(): string
+    {
+        return route('order::orders.show', ['order' => $this]);
     }
 }

@@ -15,10 +15,10 @@ pest()->extend(Tests\TestCase::class)
     ->in('Feature');
 
 pest()->extend(Modules\Order\Tests\OrderTestCase::class)
-    ->in(__DIR__ . '/../modules/Order/Tests');
+    ->in(__DIR__.'/../modules/Order/Tests');
 
 pest()->extend(Modules\Product\Tests\ProductTestCase::class)
-    ->in(__DIR__ . '/../modules/Product/Tests');
+    ->in(__DIR__.'/../modules/Product/Tests');
 
 pest()->extend(Modules\Shipment\Tests\ShipmentTestCase::class)
-    ->in(__DIR__ . '/../modules/Shipment/Tests');
+    ->in(__DIR__.'/../modules/Shipment/Tests');

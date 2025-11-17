@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\Fluent\AssertableJson;
 use Modules\Order\Models\Order;
 use Modules\Payment\PayBuddy;
 use Modules\Product\Models\Product;
@@ -26,13 +27,17 @@ it('successfuly creates an order', function () {
             'payment_token' => $paymentToken,
             'products' => [
                 ['id' => $products->first()->id, 'quantity' => 1],
-                ['id' => $products->last()->id, 'quantity' => 1]
-            ]
+                ['id' => $products->last()->id, 'quantity' => 1],
+            ],
         ]));
 
-    $response->assertStatus(Response::HTTP_CREATED);
-
     $order = Order::query()->latest('id')->first();
+
+    $response
+        ->assertStatus(Response::HTTP_CREATED)
+        ->assertJson(fn (AssertableJson $json) => $json->has('data', fn (AssertableJson $json) => $json->where('order_url', $order->url())
+        )
+        );
 
     // Order
     $this->assertNotNull($order);
@@ -70,8 +75,8 @@ it('fails with an invalid token', function () {
         ->postJson(route('order::checkout', [
             'payment_token' => $paymentToken,
             'products' => [
-                ['id' => $product->id, 'quantity' => 1]
-            ]
+                ['id' => $product->id, 'quantity' => 1],
+            ],
         ]));
 
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)

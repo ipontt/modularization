@@ -13,12 +13,12 @@ use RuntimeException;
 final class PayBuddy
 {
     /**
-     * @param string $token         A valid payment token
-     * @param int $amount           The amount to charge in cents (or the smallest unit or another currency)
-     * @param string $description   The statement description
-     * @throws RuntimeException
-     *
+     * @param  string  $token  A valid payment token
+     * @param  int  $amount  The amount to charge in cents (or the smallest unit or another currency)
+     * @param  string  $description  The statement description
      * @return array{id: string, amount: int, localized_amount: string, description: string, created_at: string}
+     *
+     * @throws RuntimeException
      */
     public function charge(string $token, int $amount, string $description): array
     {
