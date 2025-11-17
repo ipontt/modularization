@@ -2,32 +2,22 @@
 
 namespace Modules\Order\Actions;
 
-use Modules\Order\Exceptions\PaymentFailedException;
 use Modules\Order\Models\Order;
+use Modules\Payment\Actions\CreatePaymentForOrder;
 use Modules\Payment\PayBuddy;
 use Modules\Product\CartItemCollection;
 use Modules\Product\Warehouse\ProductStockManager;
-use RuntimeException;
 
 class PurchaseItems
 {
     public function __construct(
         protected ProductStockManager $productStockManager,
+        protected CreatePaymentForOrder $createPaymentForOrder,
     ) {}
 
     public function handle(CartItemCollection $cartItems, PayBuddy $paymentGateway, string $paymentToken, int $userId): Order
     {
         $total = $cartItems->total();
-
-        try {
-            $charge = $paymentGateway->charge(
-                token: $paymentToken,
-                amount: $total,
-                description: 'Test payment',
-            );
-        } catch (RuntimeException $e) {
-            throw PaymentFailedException::dueToInvalidToken();
-        }
 
         $order = Order::query()->create([
             'status' => 'completed',
@@ -44,13 +34,13 @@ class PurchaseItems
             ]);
         }
 
-        $payment = $order->payments()->create([
-            'total' => $total,
-            'status' => 'paid',
-            'payment_gateway' => 'PayBuddy',
-            'payment_id' => $charge['id'],
-            'user_id' => $userId,
-        ]);
+        $this->createPaymentForOrder->handle(
+            $order->id,
+            $userId,
+            $total,
+            $paymentGateway,
+            $paymentToken,
+        );
 
         return $order;
     }

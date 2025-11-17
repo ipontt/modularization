@@ -27,7 +27,7 @@ class CheckoutController
                 (string) $request->safe()->string('payment_token'),
                 $userId,
             );
-        } catch (PaymentFailedException $e) {
+        } catch (PaymentFailedException) {
             throw ValidationException::withMessages([
                 'payment_token' => 'We could not complete your payment.',
             ]);
