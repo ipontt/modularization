@@ -9,6 +9,7 @@ use RuntimeException;
 
 class CreatePaymentForOrder
 {
+    /** @throws PaymentFailedException */
     public function handle(
         int $orderId,
         int $userId,

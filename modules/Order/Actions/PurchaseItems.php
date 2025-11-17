@@ -8,7 +8,6 @@ use Modules\Payment\Actions\CreatePaymentForOrder;
 use Modules\Payment\PayBuddy;
 use Modules\Product\CartItemCollection;
 use Modules\Product\Warehouse\ProductStockManager;
-use Throwable;
 
 class PurchaseItems
 {
@@ -18,32 +17,21 @@ class PurchaseItems
         protected DatabaseManager $databaseManager,
     ) {}
 
-    /** @throws Throwable */
-    public function handle(CartItemCollection $cartItems, PayBuddy $paymentGateway, string $paymentToken, int $userId): Order
+    public function handle(CartItemCollection $items, PayBuddy $paymentGateway, string $paymentToken, int $userId): Order
     {
-        $total = $cartItems->total();
+        return $this->databaseManager->transaction(function () use ($items, $paymentGateway, $paymentToken, $userId) {
+            $order = Order::startForUser($userId);
+            $order->addLinesFromCartItems($items);
+            $order->fulfill();
 
-        return $this->databaseManager->transaction(function () use ($cartItems, $total, $paymentGateway, $paymentToken, $userId) {
-
-            $order = Order::query()->create([
-                'status' => 'completed',
-                'total' => $total,
-                'user_id' => $userId,
-            ]);
-
-            foreach ($cartItems->items as $cartItem) {
+            foreach ($items->items as $cartItem) {
                 $this->productStockManager->decrement($cartItem->product->id, $cartItem->quantity);
-                $order->lines()->create([
-                    'product_id' => $cartItem->product->id,
-                    'product_price' => $cartItem->product->price,
-                    'quantity' => $cartItem->quantity,
-                ]);
             }
 
             $this->createPaymentForOrder->handle(
                 $order->id,
                 $userId,
-                $total,
+                $items->total(),
                 $paymentGateway,
                 $paymentToken,
             );
