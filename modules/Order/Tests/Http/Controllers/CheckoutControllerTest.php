@@ -38,9 +38,15 @@ it('successfuly creates an order', function () {
     $this->assertNotNull($order);
     $this->assertTrue($order->user->is($user));
     $this->assertEquals(600_00, $order->total);
-    $this->assertEquals('paid', $order->status);
-    $this->assertEquals('PayBuddy', $order->payment_gateway);
-    $this->assertEquals(36, strlen($order->payment_id));
+    $this->assertEquals('completed', $order->status);
+
+    // Payment
+    $payment = $order->lastPayment;
+    $this->assertEquals('paid', $payment->status);
+    $this->assertEquals('PayBuddy', $payment->payment_gateway);
+    $this->assertEquals(36, strlen($payment->payment_id));
+    $this->assertEquals(600_00, $payment->total);
+    $this->assertTrue($payment->user->is($user));
 
     // Order Lines
     $this->assertCount(2, $order->lines);

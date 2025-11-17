@@ -13,8 +13,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->unsignedBigInteger('total')->comment('total in cents (or smallest unit)');
             $table->string('status');
-            $table->string('payment_gateway');
-            $table->string('payment_id');
             $table->timestamps();
         });
     }

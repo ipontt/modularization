@@ -39,9 +39,7 @@ class CheckoutController
         }
 
         $order = Order::query()->create([
-            'payment_id' => $charge['id'],
-            'status' => 'paid',
-            'payment_gateway' => 'PayBuddy',
+            'status' => 'completed',
             'total' => $total,
             'user_id' => Auth::id(),
         ]);
@@ -54,6 +52,14 @@ class CheckoutController
                 'quantity' => $cartItem->quantity,
             ]);
         }
+
+        $payment = $order->payments()->create([
+            'total' => $total,
+            'status' => 'paid',
+            'payment_gateway' => 'PayBuddy',
+            'payment_id' => $charge['id'],
+            'user_id' => Auth::id(),
+        ]);
 
         return new JsonResponse(data: [], status: Response::HTTP_CREATED);
     }

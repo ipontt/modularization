@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Modules\Payment\Payment;
 use Modules\Product\Models\Product;
 
 class Order extends Model
@@ -16,8 +18,6 @@ class Order extends Model
         'user_id',
         'status',
         'total',
-        'payment_gateway',
-        'payment_id',
     ];
 
     /** @return BelongsTo<User, $this> */
@@ -30,5 +30,17 @@ class Order extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(OrderLine::class);
+    }
+
+    /** @return HasMany<Payment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /** @return HasOne<Payment, $this> */
+    public function lastPayment(): HasOne
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
     }
 }
