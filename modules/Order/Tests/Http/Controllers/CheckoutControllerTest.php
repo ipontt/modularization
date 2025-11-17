@@ -3,9 +3,12 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Modules\Order\Events\OrderFulfilled;
+use Modules\Order\Listeners\SendOrderConfirmationEmail;
 use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Payment\PayBuddy;
+use Modules\Product\Listeners\DecreaseProductStock;
 use Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,6 +16,8 @@ uses(RefreshDatabase::class);
 
 it('successfuly creates an order', function () {
     Mail::fake();
+    Event::fake();
+
     $user = User::factory()->create();
     $products = Product::factory()
         ->count(2)
@@ -39,7 +44,18 @@ it('successfuly creates an order', function () {
         ->assertStatus(Response::HTTP_CREATED)
         ->assertJsonPath('data.order_url', $order->url());
 
-    Mail::assertQueued(OrderReceived::class, $user->email);
+    Event::assertDispatchedTimes(OrderFulfilled::class, 1);
+    Event::assertDispatched(OrderFulfilled::class, function (OrderFulfilled $event) use ($order, $user) {
+        $this->assertTrue($event->orderId === $order->id);
+        $this->assertTrue($event->total === $order->total);
+        $this->assertTrue($event->localizedTotal === $order->localizedTotal());
+        $this->assertTrue($event->userId === $user->id);
+        $this->assertTrue($event->userEmail === $user->email);
+
+        return true;
+    });
+    Event::assertListening(OrderFulfilled::class, SendOrderConfirmationEmail::class);
+    Event::assertListening(OrderFulfilled::class, DecreaseProductStock::class);
 
     // Order
     $this->assertNotNull($order);
@@ -62,10 +78,6 @@ it('successfuly creates an order', function () {
         $this->assertEquals($product->price, $order_line->product_price);
         $this->assertEquals(1, $order_line->quantity);
     }
-
-    $products = $products->fresh();
-    $this->assertEquals(9, $products->first()->stock);
-    $this->assertEquals(9, $products->last()->stock);
 });
 
 it('fails with an invalid token', function () {
