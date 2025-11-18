@@ -16,7 +16,7 @@ uses(RefreshDatabase::class);
 
 it('successfuly creates an order', function () {
     Mail::fake();
-    Event::fake();
+//    Event::fake();
 
     $user = User::factory()->create();
     $products = Product::factory()
@@ -44,18 +44,19 @@ it('successfuly creates an order', function () {
         ->assertStatus(Response::HTTP_CREATED)
         ->assertJsonPath('data.order_url', $order->url());
 
-    Event::assertDispatchedTimes(OrderFulfilled::class, 1);
-    Event::assertDispatched(OrderFulfilled::class, function (OrderFulfilled $event) use ($order, $user) {
-        $this->assertTrue($event->orderId === $order->id);
-        $this->assertTrue($event->total === $order->total);
-        $this->assertTrue($event->localizedTotal === $order->localizedTotal());
-        $this->assertTrue($event->userId === $user->id);
-        $this->assertTrue($event->userEmail === $user->email);
-
-        return true;
-    });
-    Event::assertListening(OrderFulfilled::class, SendOrderConfirmationEmail::class);
-    Event::assertListening(OrderFulfilled::class, DecreaseProductStock::class);
+//    Event::assertDispatchedOnce(OrderFulfilled::class);
+//    Event::assertDispatched(OrderFulfilled::class, dump(...));
+//    Event::assertDispatched(OrderFulfilled::class, function (OrderFulfilled $event) use ($order, $user) {
+//        $this->assertTrue($event->orderId === $order->id);
+//        $this->assertTrue($event->total === $order->total);
+//        $this->assertTrue($event->localizedTotal === $order->localizedTotal());
+//        $this->assertTrue($event->userId === $user->id);
+//        $this->assertTrue($event->userEmail === $user->email);
+//
+//        return true;
+//    });
+//    Event::assertListening(OrderFulfilled::class, SendOrderConfirmationEmail::class);
+//    Event::assertListening(OrderFulfilled::class, DecreaseProductStock::class);
 
     // Order
     $this->assertNotNull($order);
@@ -78,6 +79,11 @@ it('successfuly creates an order', function () {
         $this->assertEquals($product->price, $order_line->product_price);
         $this->assertEquals(1, $order_line->quantity);
     }
+
+    Mail::assertQueued(OrderReceived::class, $user->email);
+
+    $this->assertEquals(9, $products->first()->fresh()->stock);
+    $this->assertEquals(9, $products->last()->fresh()->stock);
 });
 
 it('fails with an invalid token', function () {

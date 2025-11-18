@@ -10,6 +10,6 @@ class SendOrderConfirmationEmail
 {
     public function handle(OrderFulfilled $event): void
     {
-        Mail::to($event->userEmail)->queue(new OrderReceived($event->localizedTotal));
+        Mail::to($event->user->email)->queue(new OrderReceived($event->order->localizedTotal));
     }
 }

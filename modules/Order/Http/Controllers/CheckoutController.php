@@ -7,10 +7,12 @@ use Illuminate\Container\Attributes\Authenticated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use Modules\Order\Actions\PurchaseItems;
+use Modules\Order\DTOs\PendingPayment;
 use Modules\Order\Exceptions\PaymentFailedException;
 use Modules\Order\Http\Requests\CheckoutRequest;
 use Modules\Payment\PayBuddy;
 use Modules\Product\CartItemCollection;
+use Modules\User\UserDTO;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController
@@ -19,13 +21,17 @@ class CheckoutController
     {
         $cartItems = CartItemCollection::fromCheckoutData($request->products());
 
+        $pendingPayment = new PendingPayment(
+            provider: PayBuddy::make(),
+            paymentToken: (string) $request->safe()->string('payment_token'),
+        );
+        $userDTO = UserDTO::fromEloquentModel($user);
+
         try {
             $order = $purchaseItems->handle(
-                $cartItems,
-                PayBuddy::make(),
-                (string) $request->safe()->string('payment_token'),
-                $user->id,
-                $user->email,
+                items: $cartItems,
+                pendingPayment: $pendingPayment,
+                user: $userDTO,
             );
         } catch (PaymentFailedException) {
             throw ValidationException::withMessages([
@@ -35,7 +41,7 @@ class CheckoutController
 
         return new JsonResponse(data: [
             'data' => [
-                'order_url' => $order->url(),
+                'order_url' => $order->url,
             ],
         ], status: Response::HTTP_CREATED);
     }
