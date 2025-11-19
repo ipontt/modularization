@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Order\DTOs\OrderDTO;
-use Modules\Order\DTOs\OrderLineDTO;
-use Modules\Order\Events\OrderFulfilled;
+use Modules\Order\Checkout\OrderFulfilled;
+use Modules\Order\Contracts\OrderDTO;
+use Modules\Order\Contracts\OrderLineDTO;
 use Modules\Product\CartItem;
 use Modules\Product\CartItemCollection;
 use Modules\Product\Listeners\DecreaseProductStock;

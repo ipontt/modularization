@@ -1,10 +1,8 @@
 <?php
 
-namespace Modules\Order\Listeners;
+namespace Modules\Order\Checkout;
 
 use Illuminate\Support\Facades\Mail;
-use Modules\Order\Events\OrderFulfilled;
-use Modules\Order\Mail\OrderReceived;
 
 class SendOrderConfirmationEmail
 {

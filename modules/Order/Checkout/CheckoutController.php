@@ -1,14 +1,12 @@
 <?php
 
-namespace Modules\Order\Http\Controllers;
+namespace Modules\Order\Checkout;
 
 use App\Models\User;
 use Illuminate\Container\Attributes\Authenticated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
-use Modules\Order\Actions\PurchaseItems;
-use Modules\Order\DTOs\PendingPayment;
-use Modules\Order\Http\Requests\CheckoutRequest;
+use Modules\Order\Contracts\PendingPayment;
 use Modules\Payment\Exceptions\PaymentFailedException;
 use Modules\Payment\PaymentGateway;
 use Modules\Product\CartItemCollection;

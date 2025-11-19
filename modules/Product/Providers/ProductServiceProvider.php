@@ -2,10 +2,7 @@
 
 namespace Modules\Product\Providers;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use Modules\Order\Events\OrderFulfilled;
-use Modules\Product\Listeners\DecreaseProductStock;
 
 class ProductServiceProvider extends ServiceProvider
 {

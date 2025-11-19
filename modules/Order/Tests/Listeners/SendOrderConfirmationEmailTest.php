@@ -1,10 +1,9 @@
 <?php
 
-use Modules\Order\DTOs\OrderDTO;
-use Modules\Order\Events\OrderFulfilled;
-use Modules\Order\Listeners\SendOrderConfirmationEmail;
-use Modules\Order\Mail\OrderReceived;
-use Modules\Product\CartItemCollection;
+use Modules\Order\Checkout\OrderFulfilled;
+use Modules\Order\Checkout\OrderReceived;
+use Modules\Order\Checkout\SendOrderConfirmationEmail;
+use Modules\Order\Contracts\OrderDTO;
 use Modules\User\UserDTO;
 
 it('can send order confirmation email', function () {

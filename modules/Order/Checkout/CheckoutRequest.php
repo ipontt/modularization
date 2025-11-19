@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Order\Http\Requests;
+namespace Modules\Order\Checkout;
 
 use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Validation\ValidationRule;

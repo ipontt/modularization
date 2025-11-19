@@ -3,13 +3,10 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
-use Modules\Order\Events\OrderFulfilled;
-use Modules\Order\Listeners\SendOrderConfirmationEmail;
-use Modules\Order\Mail\OrderReceived;
-use Modules\Order\Models\Order;
+use Modules\Order\Checkout\OrderReceived;
+use Modules\Order\Order;
 use Modules\Payment\PayBuddySDK;
 use Modules\Payment\PaymentProvider;
-use Modules\Product\Listeners\DecreaseProductStock;
 use Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
 

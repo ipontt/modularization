@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Order\Providers;
+namespace Modules\Order\Infrastructure\Providers;
 
-use Modules\Order\Events\OrderFulfilled;
-use Modules\Order\Listeners\SendOrderConfirmationEmail;
+use Modules\Order\Checkout\OrderFulfilled;
+use Modules\Order\Checkout\SendOrderConfirmationEmail;
 
 class EventServiceProvider extends \Illuminate\Foundation\Support\Providers\EventServiceProvider
 {

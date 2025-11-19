@@ -2,7 +2,7 @@
 
 namespace Modules\Product\Listeners;
 
-use Modules\Order\Events\OrderFulfilled;
+use Modules\Order\Checkout\OrderFulfilled;
 use Modules\Product\Warehouse\ProductStockManager;
 
 class DecreaseProductStock
