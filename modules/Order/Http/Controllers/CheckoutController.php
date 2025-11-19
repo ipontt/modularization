@@ -8,21 +8,26 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use Modules\Order\Actions\PurchaseItems;
 use Modules\Order\DTOs\PendingPayment;
-use Modules\Order\Exceptions\PaymentFailedException;
 use Modules\Order\Http\Requests\CheckoutRequest;
-use Modules\Payment\PayBuddy;
+use Modules\Payment\Exceptions\PaymentFailedException;
+use Modules\Payment\PaymentGateway;
 use Modules\Product\CartItemCollection;
 use Modules\User\UserDTO;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController
 {
-    public function __invoke(CheckoutRequest $request, PurchaseItems $purchaseItems, #[Authenticated] User $user): JsonResponse
+    public function __invoke(
+        PurchaseItems $purchaseItems,
+        PaymentGateway $paymentGateway,
+        CheckoutRequest $request,
+        #[Authenticated] User $user,
+    ): JsonResponse
     {
         $cartItems = CartItemCollection::fromCheckoutData($request->products());
 
         $pendingPayment = new PendingPayment(
-            provider: PayBuddy::make(),
+            provider: $paymentGateway,
             paymentToken: (string) $request->safe()->string('payment_token'),
         );
         $userDTO = UserDTO::fromEloquentModel($user);

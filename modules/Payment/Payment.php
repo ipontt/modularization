@@ -3,6 +3,7 @@
 namespace Modules\Payment;
 
 use App\Models\User;
+use BackedEnum;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,14 @@ class Payment extends Model
 
     /** @var list<string> */
     protected $guarded = [];
+
+    /** @return array<string, string|BackedEnum> */
+    protected function casts(): array
+    {
+        return [
+            'payment_gateway' => PaymentProvider::class,
+        ];
+    }
 
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo

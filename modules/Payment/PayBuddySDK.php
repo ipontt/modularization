@@ -10,7 +10,7 @@ use RuntimeException;
 /**
  * Fake payment provider, for testing purposes
  */
-final class PayBuddy
+final class PayBuddySDK
 {
     /**
      * @param  string  $token  A valid payment token
@@ -35,7 +35,7 @@ final class PayBuddy
         ];
     }
 
-    public static function make(): PayBuddy
+    public static function make(): PayBuddySDK
     {
         return new self;
     }

@@ -7,7 +7,8 @@ use Modules\Order\Events\OrderFulfilled;
 use Modules\Order\Listeners\SendOrderConfirmationEmail;
 use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
-use Modules\Payment\PayBuddy;
+use Modules\Payment\PayBuddySDK;
+use Modules\Payment\PaymentProvider;
 use Modules\Product\Listeners\DecreaseProductStock;
 use Modules\Product\Models\Product;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ it('successfuly creates an order', function () {
         )
         ->create();
 
-    $paymentToken = PayBuddy::validToken();
+    $paymentToken = PayBuddySDK::validToken();
 
     $response = $this->actingAs($user)
         ->post(route('order::checkout', [
@@ -67,7 +68,7 @@ it('successfuly creates an order', function () {
     // Payment
     $payment = $order->lastPayment;
     $this->assertEquals('paid', $payment->status);
-    $this->assertEquals('PayBuddy', $payment->payment_gateway);
+    $this->assertEquals(PaymentProvider::PayBuddy, $payment->payment_gateway);
     $this->assertEquals(36, strlen($payment->payment_id));
     $this->assertEquals(600_00, $payment->total);
     $this->assertTrue($payment->user->is($user));
@@ -89,7 +90,7 @@ it('successfuly creates an order', function () {
 it('fails with an invalid token', function () {
     $user = User::factory()->create();
     $product = Product::factory()->create();
-    $paymentToken = PayBuddy::invalidToken();
+    $paymentToken = PayBuddySDK::invalidToken();
 
     $response = $this->actingAs($user)
         ->postJson(route('order::checkout', [
