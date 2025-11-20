@@ -25,8 +25,7 @@ class OrderReceived extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: null,
-            html: "We have received your order of $this->localizedTotal.",
+            htmlString: "We have received your order of $this->localizedTotal.",
         );
     }
 }
