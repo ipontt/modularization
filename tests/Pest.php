@@ -22,3 +22,6 @@ pest()->extend(Modules\Product\Tests\ProductTestCase::class)
 
 pest()->extend(Modules\Shipment\Tests\ShipmentTestCase::class)
     ->in(__DIR__.'/../modules/Shipment/Tests');
+
+pest()->extend(Modules\Payment\Tests\PaymentTestCase::class)
+    ->in(__DIR__.'/../modules/Payment/Tests');
