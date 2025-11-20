@@ -1,15 +1,18 @@
 <?php
 
-use Modules\Order\Checkout\OrderFulfilled;
+use Illuminate\Support\Str;
 use Modules\Order\Checkout\OrderReceived;
+use Modules\Order\Checkout\OrderStarted;
 use Modules\Order\Checkout\SendOrderConfirmationEmail;
 use Modules\Order\Contracts\OrderDTO;
+use Modules\Order\Contracts\PendingPayment;
+use Modules\Payment\InMemoryGateway;
 use Modules\User\UserDTO;
 
 it('can send order confirmation email', function () {
     Mail::fake();
 
-    $event = new OrderFulfilled(
+    $event = new OrderStarted(
         order: new OrderDTO(
             id: -1,
             total: 100_00_00,
@@ -22,6 +25,10 @@ it('can send order confirmation email', function () {
             email: 'test@email',
             name: 'Test User',
         ),
+        pendingPayment: new PendingPayment(
+            provider: new InMemoryGateway,
+            paymentToken: (string) Str::uuid7(),
+        )
     );
 
     $this->app->make(SendOrderConfirmationEmail::class)->handle($event);

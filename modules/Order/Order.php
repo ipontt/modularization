@@ -3,11 +3,14 @@
 namespace Modules\Order;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Number;
+use Modules\Order\Infrastructure\Database\Factories\OrderFactory;
 use Modules\Payment\Payment;
 use Modules\Product\Collections\CartItemCollection;
 
@@ -16,11 +19,17 @@ use Modules\Product\Collections\CartItemCollection;
  * @property string $status
  * @property int $total
  */
+#[UseFactory(OrderFactory::class)]
 class Order extends Model
 {
+    /** @use HasFactory<OrderFactory> */
+    use HasFactory;
+
     const string PENDING = 'pending';
 
     const string COMPLETED = 'completed';
+
+    const string PAYMENT_FAILED = 'payment_failed';
 
     /** @var list<string> */
     protected $fillable = [
@@ -85,15 +94,38 @@ class Order extends Model
     }
 
     /** @throws OrderMissingOrderLinesException */
-    public function fulfill(): void
+    public function start(): void
     {
         if ($this->lines->isEmpty()) {
             throw new OrderMissingOrderLinesException;
         }
 
-        $this->status = self::COMPLETED;
+        $this->status = self::PENDING;
 
         $this->save();
         $this->lines()->saveMany($this->lines);
+    }
+
+    public function markAsFailed(): void
+    {
+        if ($this->isCompleted()) {
+            throw new \RuntimeException('A completed order cannot be marked as failed.');
+        }
+
+        $this->status = self::PAYMENT_FAILED;
+
+        $this->save();
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === self::COMPLETED;
+    }
+
+    public function complete(): void
+    {
+        $this->status = self::COMPLETED;
+
+        $this->save();
     }
 }

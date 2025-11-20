@@ -15,7 +15,8 @@ class CreatePaymentForOrderInMemory implements CreatePaymentForOrderInterface
 
     protected bool $shouldFail = false;
 
-    public function handle(int $orderId, int $userId, int $total, PaymentGateway $paymentGateway, string $paymentToken,): Payment
+    /** {inheritDoc} */
+    public function handle(int $orderId, int $userId, int $total, PaymentGateway $paymentGateway, string $paymentToken): Payment
     {
         if ($this->shouldFail) {
             throw new PaymentFailedException;

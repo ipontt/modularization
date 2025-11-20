@@ -2,16 +2,17 @@
 
 namespace Modules\Product\Listeners;
 
-use Modules\Order\Checkout\OrderFulfilled;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Modules\Payment\PaymentSuceeded;
 use Modules\Product\Warehouse\ProductStockManager;
 
-class DecreaseProductStock
+class DecreaseProductStock implements ShouldQueue
 {
     public function __construct(
         protected ProductStockManager $productStockManager,
     ) {}
 
-    public function handle(OrderFulfilled $event): void
+    public function handle(PaymentSuceeded $event): void
     {
         foreach ($event->order->lines as $orderLine) {
             $this->productStockManager->decrement($orderLine->productId, $orderLine->quantity);

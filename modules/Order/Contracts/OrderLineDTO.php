@@ -23,7 +23,7 @@ readonly class OrderLineDTO
     }
 
     /**
-     * @param Collection<int, OrderLine> $orderLines
+     * @param  Collection<int, OrderLine>  $orderLines
      * @return OrderLineDTO[]
      */
     public static function fromEloquentCollection(Collection $orderLines): array

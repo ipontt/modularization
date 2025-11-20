@@ -24,5 +24,7 @@ class PaymentServiceProvider extends ServiceProvider
             abstract: CreatePaymentForOrderInterface::class,
             concrete: fn () => new CreatePaymentForOrder,
         );
+
+        $this->app->register(EventServiceProvider::class);
     }
 }

@@ -21,27 +21,33 @@ class PurchaseItems
 
     public function handle(CartItemCollection $items, PendingPayment $pendingPayment, UserDTO $user): OrderDTO
     {
-        $order = $this->databaseManager->transaction(function () use ($items, $pendingPayment, $user): OrderDTO {
+        $order = $this->databaseManager->transaction(function () use ($items, $user): OrderDTO {
             $order = Order::startForUser($user->id);
             $order->addLinesFromCartItems($items);
-            $order->fulfill();
+            //            $order->fulfill();
+            $order->start();
 
-            $this->createPaymentForOrder->handle(
-                orderId: $order->id,
-                userId: $user->id,
-                total: $items->total(),
-                paymentGateway: $pendingPayment->provider,
-                paymentToken: $pendingPayment->paymentToken,
-            );
+            //            $this->createPaymentForOrder->handle(
+            //                orderId: $order->id,
+            //                userId: $user->id,
+            //                total: $items->total(),
+            //                paymentGateway: $pendingPayment->provider,
+            //                paymentToken: $pendingPayment->paymentToken,
+            //            );
 
             return OrderDTO::fromEloquentModel($order);
         });
 
         $this->events->dispatch(
-            new OrderFulfilled(
+            new OrderStarted(
                 order: $order,
                 user: $user,
+                pendingPayment: $pendingPayment,
             ),
+            //            new OrderFulfilled(
+            //                order: $order,
+            //                user: $user,
+            //            ),
         );
 
         return $order;

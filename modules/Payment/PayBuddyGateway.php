@@ -12,8 +12,6 @@ class PayBuddyGateway implements PaymentGateway
     ) {}
 
     /**
-     * @param PaymentDetails $details
-     * @return SuccessfulPayment
      * @throws PaymentFailedException
      */
     public function charge(PaymentDetails $details): SuccessfulPayment

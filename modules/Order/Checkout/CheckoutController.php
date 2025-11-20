@@ -20,8 +20,7 @@ class CheckoutController
         PaymentGateway $paymentGateway,
         CheckoutRequest $request,
         #[Authenticated] User $user,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $cartItems = CartItemCollection::fromCheckoutData($request->products());
 
         $pendingPayment = new PendingPayment(

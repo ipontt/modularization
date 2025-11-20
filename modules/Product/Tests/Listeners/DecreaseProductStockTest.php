@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Order\Checkout\OrderFulfilled;
 use Modules\Order\Contracts\OrderDTO;
 use Modules\Order\Contracts\OrderLineDTO;
+use Modules\Payment\PaymentSuceeded;
 use Modules\Product\Collections\CartItemCollection;
 use Modules\Product\DTOs\CartItem;
 use Modules\Product\DTOs\ProductDTO;
@@ -22,7 +22,7 @@ it('decreases the product stock for all the product lines', function () {
         new CartItem(ProductDTO::fromEloquentModel($product_two), 1),
     ]));
 
-    $event = new OrderFulfilled(
+    $event = new PaymentSuceeded(
         order: new OrderDTO(
             id: -1,
             total: 100_00_00,
