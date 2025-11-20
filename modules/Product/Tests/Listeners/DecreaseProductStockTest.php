@@ -4,11 +4,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Order\Checkout\OrderFulfilled;
 use Modules\Order\Contracts\OrderDTO;
 use Modules\Order\Contracts\OrderLineDTO;
-use Modules\Product\CartItem;
-use Modules\Product\CartItemCollection;
+use Modules\Product\Collections\CartItemCollection;
+use Modules\Product\DTOs\CartItem;
+use Modules\Product\DTOs\ProductDTO;
 use Modules\Product\Listeners\DecreaseProductStock;
 use Modules\Product\Models\Product;
-use Modules\Product\ProductDTO;
 use Modules\User\UserDTO;
 
 uses(RefreshDatabase::class);

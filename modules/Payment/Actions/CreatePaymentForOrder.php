@@ -6,9 +6,8 @@ use Modules\Payment\Exceptions\PaymentFailedException;
 use Modules\Payment\Payment;
 use Modules\Payment\PaymentDetails;
 use Modules\Payment\PaymentGateway;
-use RuntimeException;
 
-class CreatePaymentForOrder
+class CreatePaymentForOrder implements CreatePaymentForOrderInterface
 {
     /** @throws PaymentFailedException */
     public function handle(

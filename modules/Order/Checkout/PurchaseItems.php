@@ -7,14 +7,14 @@ use Illuminate\Database\DatabaseManager;
 use Modules\Order\Contracts\OrderDTO;
 use Modules\Order\Contracts\PendingPayment;
 use Modules\Order\Order;
-use Modules\Payment\Actions\CreatePaymentForOrder;
-use Modules\Product\CartItemCollection;
+use Modules\Payment\Actions\CreatePaymentForOrderInterface;
+use Modules\Product\Collections\CartItemCollection;
 use Modules\User\UserDTO;
 
 class PurchaseItems
 {
     public function __construct(
-        protected CreatePaymentForOrder $createPaymentForOrder,
+        protected CreatePaymentForOrderInterface $createPaymentForOrder,
         protected DatabaseManager $databaseManager,
         protected Dispatcher $events,
     ) {}

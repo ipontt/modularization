@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Number;
 use Modules\Payment\Payment;
-use Modules\Product\CartItemCollection;
+use Modules\Product\Collections\CartItemCollection;
 
 /**
  * @property int $user_id
